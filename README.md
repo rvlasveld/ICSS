@@ -1,6 +1,6 @@
 # ICSS
 
-Matlab implementation of the [ICSS algorithm of Inclan and Tiao](www.jstor.org/stable/2290916) ("Use of cumulative sums of squares for retrospective detection of changes of variance").
+Matlab implementation of the [ICSS algorithm of Inclan and Tiao](http://www.jstor.org/stable/2290916) ("Use of cumulative sums of squares for retrospective detection of changes of variance").
 
 ## How does it work?
 
