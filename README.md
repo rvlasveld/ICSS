@@ -7,10 +7,10 @@ Matlab implementation of the [ICSS algorithm of Inclan and Tiao](http://www.jsto
 Load to the `matlab` directory and run `demo`, or `demo_accelermeter_data` for an application of x-axis value of a recorded activity series with a smartphone.
 
 The result, for the paper provided data is:
-
+![Paper data segmentation](/images/paper.png?raw=true "Paper segmentation")
 
 For accelerometer data:
-![Accelerometer data segmentation](/data/sit-walk-turn-walk-turn-walk-sit.png?raw=true "Accelerometer data segmentation")
+![Accelerometer data segmentation](/images/sit-walk-turn-walk-turn-walk-sit.png?raw=true "Accelerometer data segmentation")
 
 For any vector of values, run `ICSS(data)` to obtain the change points.
 
