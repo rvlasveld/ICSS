@@ -4,7 +4,7 @@ Matlab implementation of the [ICSS algorithm of Inclan and Tiao](http://www.jsto
 
 ## How does it work?
 
-Load to the `matlab` directory and run `demo`.
+Load to the `matlab` directory and run `demo`, or `demo_accelermeter_data` for an application of x-axis value of a recorded activity series with a smartphone.
 
 For any vector of values, run `ICSS(data)` to obtain the change points.
 
