@@ -32,6 +32,7 @@ end
 function [values] = AlternatingVariance(size, segments, variances)
 % ALTERNATING_VARIANCE Generate a sequence of data with alternating
 % variance. Mean is fixed at 0.
+    fprintf('Generating alternating variance data \n');
     
     if nargin < 3
         variances = [1, 3, 1];
@@ -50,8 +51,10 @@ function [values] = AlternatingVariance(size, segments, variances)
     
     j = 1;
     for segment = 1:segments
+        variance = variances(segment);
+        fprintf('  new segment at %i with variance %i \n', j, variance );
         for i = 1:per_segment
-            values(j) = normrnd(0, variances(segment));
+            values(j) = normrnd(0, variance);
             j = j + 1;
         end
     end
