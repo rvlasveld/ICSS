@@ -1,4 +1,29 @@
 function [ change_points ] = ICSS( data )
+
+    range_stack = CStack();
+    range_stack.push([1, length(data)]);
+    
+    change_points_stack = CStack();
+    
+    while ~range_stack.isempty()
+        current_range = range_stack.pop()
+        [change_points_sub, range] = ICSS_non_recursive(data(current_range(1):current_range(2)));
+        
+        if length(range) == 2
+            range_stack.push(range);
+        end
+        
+        for i = 1 : length(change_points_sub)
+            change_points_stack.push(change_points_sub(i));
+        end
+    end
+    
+    change_points = change_points_stack.content();
+    
+end
+
+function [ change_points, range ] = ICSS_non_recursive( data )
+%#codegen
 % ICSS Run the 'Iterative Cumulative Sums of Squares' algorithm
 %   Based on 'Use of Cumulative Sums of Squares for Retrospective Detection
 %   of Changes of Variance', by Inclan and Tiao, 1994
@@ -6,7 +31,7 @@ function [ change_points ] = ICSS( data )
 %   output: vector of change-points
 
     % Perform first two steps of the algorithm (which is recursive)
-    potential_change_points = ICSS_step_1_and_2(data);
+    [potential_change_points, range] = ICSS_step_1_and_2(data);
     potential_change_points = unique([0, sort(potential_change_points), length(data)]);
    
     % Step 3: check each potential change point
@@ -72,12 +97,13 @@ end
 
 
 
-function [change_points] = ICSS_step_1_and_2(data)
+function [change_points, range] = ICSS_step_1_and_2(data)
 % ICSS_STEP_1_AND_2 Perform the first two steps of the ICSS alg, recursive
 %   The first two steps find all the potential change points. Due to its
 %   recursive nature, the masking effect of changes is minimized.
 
     change_points = [];
+    range = [];
     if length(data) < 0
         return;
     end
@@ -127,10 +153,12 @@ function [change_points] = ICSS_step_1_and_2(data)
             change_points = k_first;
         else
             % Multiple change points; repeat for the section between them
-            deep = ICSS(data(k_first:k_last));
+%             deep = ICSS(data(k_first:k_last));
+            range = [k_first,k_last];
             % Add the first position to all the returned change points of
             % the recursive, to get the correct offset
-            change_points = [k_first, deep + k_first, k_last];
+%             change_points = [k_first, deep + k_first, k_last];
+            change_points = [k_first, k_last];
             
         end
     end
