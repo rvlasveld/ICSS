@@ -3,22 +3,60 @@ function [ change_points ] = ICSS( data )
     range_stack = CStack();
     range_stack.push([1, length(data)]);
     
-    change_points_stack = CStack();
-    
+%     change_points_stack = CStack();
+    change_points = [];
+
     while ~range_stack.isempty()
         current_range = range_stack.pop()
         [change_points_sub, range] = ICSS_non_recursive(data(current_range(1):current_range(2)));
-        
+        range;
+        change_points_sub;
         if length(range) == 2
-            range_stack.push(range);
+            range_stack.push(range+current_range(1));
         end
         
-        for i = 1 : length(change_points_sub)
-            change_points_stack.push(change_points_sub(i));
+%         for i = 1 : length(change_points_sub)
+%             change_points_stack.push(change_points_sub(i)+current_range(1));
+%         end
+        potential_change_points = change_points_sub + current_range(1);
+        potential_change_points = unique([0, sort(potential_change_points), length(data)]);
+   
+        % Step 3: check each potential change point
+        converged = false;
+        while ~converged
+            % Store the new retrieved change points of this loop
+            new_cps = [];
+
+            % check every potential change point by inspecting from and to 
+            % the surrounding change points
+            for i=2:(length(potential_change_points)-1)
+                from    = potential_change_points(i-1)+1;
+                to      = potential_change_points(i+1);
+
+                % Calculate the Dk and M again for this section of the data
+                Dk                  = CenteredCusumValues(data(from:to));
+                [exceeds, position] = check_critical_value(Dk);
+
+                if exceeds
+                    % Keep this (new) change point
+                    new_cps(end+1) = from + position;
+                end
+            end
+
+            new_cps = [0, sort(new_cps), length(data)];
+            converged = is_converged(potential_change_points, new_cps);
+
+            if ~converged
+                potential_change_points = new_cps;
+            end
+            
+            new_cps
         end
+        
+
     end
     
-    change_points = change_points_stack.content();
+%     change_points = potential_change_points(2:end-1);
     
 end
 
