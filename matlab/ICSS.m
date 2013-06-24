@@ -1,38 +1,47 @@
-function [ change_points ] = ICSS( data )
+%
+% TODO: coder can't use CELLs. Use array as a replacement for CStack
+% 
 
+
+function [ change_points ] = ICSS( data )
+%#codegen
+    % Keep a stack of sub ranges to be inspected for change points
     range_stack = CStack();
     range_stack.push([1, length(data)]);
     
-%     change_points_stack = CStack();
-    potential_change_points = [];
-
+    potential_change_points = zeros(1, length(data));
+    cp_index = 1;
+    
+    % As long as there are values in the ranges stack, check for sub
+    % segments
     while ~range_stack.isempty()
-        current_range = range_stack.pop()
-        change_points_sub = ICSS_step_1_and_2(data(current_range(1):current_range(2)))
+        
+        current_range = range_stack.pop();
+        change_points_sub = ICSS_step_1_and_2(data(current_range(1):current_range(2)));
         
         if length(change_points_sub) == 2
+            % Multiple change points found, so put on the stack to inspect
+            % next
             range_stack.push(change_points_sub+current_range(1));
         end
         
-        for i = 1 : length(change_points_sub)
-            potential_change_points(end+1) = change_points_sub(i) + current_range(1)
-        end
-        
-        
-%         for i = 1 : length(change_points_sub)
-%             change_points_stack.push(change_points_sub(i)+current_range(1));
-%         end
-    
+        potential_change_points(cp_index : (cp_index + length(change_points_sub) - 1)) = change_points_sub + current_range(1);
+        cp_index = cp_index + length(change_points_sub);
+
     end
-%     
-%     potential_change_points = change_points_sub + current_range(1);
+    
+    %
+    % All potential segments/chang-points are found, now check for real
+    % change points
+    %
+    
     potential_change_points = unique([0, sort(potential_change_points), length(data)]);
 
     % Step 3: check each potential change point
     converged = false;
     while ~converged
         % Store the new retrieved change points of this loop
-        new_cps = [];
+        new_cps_stack = CStack();
 
         % check every potential change point by inspecting from and to 
         % the surrounding change points
@@ -46,11 +55,11 @@ function [ change_points ] = ICSS( data )
 
             if exceeds
                 % Keep this (new) change point
-                new_cps(end+1) = from + position;
+                new_cps_stack.push(from+position);
             end
         end
-
-        new_cps = [0, sort(new_cps), length(data)];
+        
+        new_cps = [0, sort(cell2mat(new_cps_stack.content()))', length(data)];
         converged = is_converged(potential_change_points, new_cps);
 
         if ~converged
@@ -58,9 +67,9 @@ function [ change_points ] = ICSS( data )
         end
     end
     
-    change_points = potential_change_points;
+%     change_points = potential_change_points;
     
-%     change_points = potential_change_points(2:end-1);
+     change_points = potential_change_points(2:end-1);
     
 end
 
